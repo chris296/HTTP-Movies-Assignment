@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouteMatch } from 'react-router-dom';
 import MovieCard from './MovieCard';
+import {useHistory} from 'react-router-dom';
 
-function Movie({ addToSavedList }) {
+function Movie(props) {
   const [movie, setMovie] = useState(null);
   const match = useRouteMatch();
+  const {push} =useHistory();
 
   const fetchMovie = id => {
     axios
@@ -15,8 +17,25 @@ function Movie({ addToSavedList }) {
   };
 
   const saveMovie = () => {
-    addToSavedList(movie);
+    props.addToSavedList(movie);
   };
+
+  const routetoUpdateForm = e => {
+    e.preventDefault();
+    push(`/update-movie/${movie.id}`)
+  }
+
+  const deleteMovie = e => {
+    e.preventDefault();
+    axios
+    .delete(`http://localhost:5000/api/movies/${movie.id}`)
+    .then(res => {
+      console.log(res);
+
+      push("/");
+    })
+    .catch(err => console.log(err))
+  }
 
   useEffect(() => {
     fetchMovie(match.params.id);
@@ -32,6 +51,12 @@ function Movie({ addToSavedList }) {
 
       <div className='save-button' onClick={saveMovie}>
         Save
+      </div>
+      <div onClick={routetoUpdateForm}>
+        Update
+      </div>
+      <div onClick={deleteMovie}>
+        Delete
       </div>
     </div>
   );
